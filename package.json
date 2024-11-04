@@ -21,7 +21,7 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/app.js",
+    "dev": "node src/app.js",
     "start": "node src/app.js",
     "postinstall": "prisma generate",
     "build": "prisma generate && npm run start"
