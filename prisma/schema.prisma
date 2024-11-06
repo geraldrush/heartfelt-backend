@@ -8,17 +8,23 @@ generator client {
 }
 
 model User {
-  id               String       @id @default(cuid()) // Use cuid for unique identifier
+  id               String       @id @default(cuid()) // Unique identifier
   name             String
   email            String       @unique
-  googleId         String?      @unique
+  googleId         String       @unique
   avatarUrl        String?
-  stories          Story[]
+  story            String? // Singular story or bio about the user
   sentRequests     Connection[] @relation("SentRequests")
   receivedRequests Connection[] @relation("ReceivedRequests")
-  tokens           Token[]
+  tokens           Float        @default(0.0) // Single token balance for the user
+  gender           String?
+  age              Int?
+  race             String?
+  location         String? // Location data
+  preference       String? // User's preference
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
+  Story            Story[]
 }
 
 model Story {
@@ -39,12 +45,4 @@ model Connection {
   receiverId String // Foreign key for the receiver
   status     String   @default("pending") // Status can be "pending", "accepted", "rejected"
   createdAt  DateTime @default(now())
-}
-
-model Token {
-  id        String   @id @default(cuid()) // Use cuid for unique identifier
-  balance   Float    @default(0.0)
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String // Foreign key for the user
-  createdAt DateTime @default(now())
 }

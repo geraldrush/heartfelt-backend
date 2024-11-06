@@ -5,6 +5,33 @@ import { PrismaClient } from "@prisma/client";
 const router = express.Router();
 const prisma = new PrismaClient();
 
+const ensureAuthenticated = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
+// Route to get the current logged-in user's information
+router.get("/me", ensureAuthenticated, async (req, res) => {
+  try {
+    // Fetch user from database using ID or email from `req.user`
+    const user = await prisma.user.findUnique({
+      where: { email: req.user.email },
+    });
+
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Controller to create or sign in a user
 router.post("/", async (req, res) => {
   const { name, email, googleId } = req.body;
