@@ -25,6 +25,7 @@ model User {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   Story            Story[]
+  status           String       @default("offline") // Status can be "active", "inactive"
 }
 
 model Story {

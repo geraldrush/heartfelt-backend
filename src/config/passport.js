@@ -17,33 +17,39 @@ passport.use(
         let user = await prisma.user.findUnique({
           where: { googleId: profile.id },
           include: {
-            sentRequests: true, // Include sent requests
-            receivedRequests: true, // Include received requests
+            sentRequests: true,
+            receivedRequests: true,
           },
         });
 
-        // If the user does not exist, create a new user with the specified fields
         if (!user) {
+          // Create a new user if they do not exist
           user = await prisma.user.create({
             data: {
               name: profile.displayName,
               email: profile.emails[0].value,
               googleId: profile.id,
               avatarUrl: profile.photos[0].value,
-              story: "", // Initialize an empty bio; can be updated later
-              tokens: 0.0, // Initialize the token balance
-              gender: "", // Initialize gender as empty; can be updated later
-              age: null, // Initialize age as null; can be updated later
-              race: "", // Initialize race as empty; can be updated later
-              location: "", // Initialize location as empty; can be updated later
-              preference: "", // Initialize preference as empty; can be updated later
-              // Optional initial story if needed
+              story: "",
+              tokens: 0.0,
+              gender: "",
+              age: null,
+              race: "",
+              location: "",
+              preference: "",
+              status: "online", // Set status to online for new users
               Story: {
                 create: {
-                  content: "This is my story!", // Default content; user can edit later
+                  content: "This is my story!",
                 },
               },
             },
+          });
+        } else {
+          // Update the existing user's status to online if they are already registered
+          user = await prisma.user.update({
+            where: { googleId: profile.id },
+            data: { status: "online" },
           });
         }
 
@@ -62,8 +68,8 @@ passport.deserializeUser(async (id, done) => {
     const user = await prisma.user.findUnique({
       where: { id },
       include: {
-        sentRequests: true, // Include sent requests
-        receivedRequests: true, // Include received requests
+        sentRequests: true,
+        receivedRequests: true,
       },
     });
     done(null, user);
